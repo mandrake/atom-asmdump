@@ -2,14 +2,11 @@ Tinify = require './Tinify'
 
 module.exports =
 class GBDumper
-  data: null
+  data: []
   i: 0x0150
 
   loadBuffer: (buffer) ->
-    if @data?
-      @data += buffer
-    else
-      @data = buffer
+    @data.push.apply(@data, buffer)
 
   le2: (b0, b1) -> (b1 << 8) + b0
   le4: (b0, b1, b2, b3) -> (b3 << 24) + (b2 << 16) + (b1 << 8) + b0
@@ -17,24 +14,23 @@ class GBDumper
   read16: (tinify) ->
     r = @le2(@data[@i], @data[@i+1])
     @i += 2
-    if !tinify
-      return parseInt(r)
+    if tinify == false
+      return r
     Tinify.hex(r, 4)
 
   read8: (tinify) ->
     r = @data[@i]
     @i++
-    if !tinify
-      return parseInt(r)
+    if tinify == false
+      return r
     Tinify.hex(r, 2)
 
   process: ->
     b0 = b1 = null
     instr = null
     ret = ""
-    while @i < @data.length
+    while @i < @data.length / 200
       b0 = @read8(false)
-      console.log b0
       switch b0
         when 0x00 then instr = ['nop']
         when 0x01 then instr = ['ld', 'reg:bc', "imm16:#{@read16()}"]
@@ -328,5 +324,7 @@ class GBDumper
         ret += Tinify.instr(instr) + "<br/>"
       b0 = b1 = null
       instr = null
+
+    console.log "FINIE"
 
     ret

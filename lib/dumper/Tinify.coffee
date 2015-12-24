@@ -1,9 +1,10 @@
 module.exports =
 Tinify =
   hex: (n, digits) ->
-    n = n.toString(16).toUpperCase()
+    # console.log n, parseInt(n), parseInt(n.toString())
+    n = parseInt(n).toString(16).toUpperCase()
     n = "0#{n}" while n.length < digits
-    "0x#{n}"
+    return "0x#{n}"
 
   instr: (i) ->
     r = ""
